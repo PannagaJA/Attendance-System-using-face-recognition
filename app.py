@@ -1,16 +1,16 @@
 import os
 import cv2
-import dlib
+import dlib # type: ignore
 import pickle
 import numpy as np
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, request, render_template, redirect,jsonify,send_from_directory, url_for, session, send_file
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build # type: ignore
+from googleapiclient.errors import HttpError # type: ignore
 from google.oauth2.service_account import Credentials
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter # type: ignore
+from reportlab.pdfgen import canvas # type: ignore
 
 # Initialize the Flask app
 app = Flask(__name__)
