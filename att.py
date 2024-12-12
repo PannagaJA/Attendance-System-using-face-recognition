@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_file,
 import os
 import re
 from collections import defaultdict
-from fpdf import FPDF
+from fpdf import FPDF # type: ignore
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # For using flash messages

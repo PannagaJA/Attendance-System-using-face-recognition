@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>View Enrolled Students</title>
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #0d47a1;
+            --accent-color: #2962ff;
+            --background-color: #f5f5f5;
+            --card-background:rgb(255, 255, 255);
+            --hover-background:rgb(98, 109, 117);
+            --button-bg: #1a73e8;
+            --button-hover-bg: #1557b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        .session-info {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .session-info h2 {
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .form-container {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            display: block;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #fff;
+            background-color: transparent;
+            color: #fff;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Style for the dropdown text (inside the select) */
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #fff;
+            background-color: transparent;
+            color: #fff; /* This affects the default text color */
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        select option {
+            color: #000; /* Set text color of dropdown options to black */
+            background-color: #fff; /* Optional: makes dropdown options white */
+        }
+            
+
+        button {
+            padding: 0.8rem 2rem;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .students-list {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+            
+        }
+
+        .students-list h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .students-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .students-list li {
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        footer {
+            position: relative;  /* Set the position to relative */
+            margin-top: auto;    /* Pushes the footer to the bottom */
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .college-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 2s ease-out;
+        }
+        .college-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+        .college-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensures body fills the entire viewport */
+            margin: 0;
+            padding: 0 1rem;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            overflow-y: auto;
+        }
+        
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enrolled Students</h2>
+    <div class="college-info animate__animated animate__fadeIn">
+        <img src="/static/amc_logo.jpg" alt="AMC Engineering College" class="college-logo">
+        <div>
+            <div class="college-name">AMC Engineering College</div>
+            <div class="dept-name">Department of CSE (AI & ML)</div>
+        </div>
+    </div>
+
+    <!-- Form to select semester and section -->
+    <div class="form-container">
+        <form method="POST">
+            <label for="semester">Select Semester:</label>
+            <select name="semester" id="semester">
+                {% for semester in semesters %}
+                    <option value="{{ semester }}">{{ semester }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="section">Select Section:</label>
+            <select name="section" id="section">
+                {% for section in sections %}
+                    <option value="{{ section }}">{{ section }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">View Students</button>
+        </form>
+    </div>
+
+    {% if enrolled_students %}
+        <div class="students-list">
+            <h3>Enrolled Students in Semester {{ request.form.get('semester') }} Section {{ request.form.get('section') }}:</h3>
+            <ul>
+                {% for student in enrolled_students %}
+                    <li>{{ student.name }} ({{ student.usn }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="students-list">
+            <p>No students enrolled for the selected semester and section.</p>
+        </div>
+    {% endif %}
+
+    <footer>
+        <p>Powered by <a href="https://amcec.edu.in/" style="color: #1a73e8; text-decoration: none;">AMC College</a></p>
+    </footer>
+</body>
+</html>

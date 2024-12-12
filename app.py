@@ -172,6 +172,27 @@ def enroll():
     
     return render_template('enroll.html')
 
+@app.route('/view_enrolled', methods=['GET', 'POST'])
+def view_enrolled():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    semesters = [str(i) for i in range(1, 9)]  # Semesters 1 to 8
+    sections = ['A', 'B', 'C', 'D', 'E', 'F', 'G']  # Sections A to G
+    enrolled_students = []
+
+    if request.method == 'POST':
+        semester = request.form.get('semester')
+        section = request.form.get('section')
+        
+        # Load all students
+        students = load_all_students()
+        
+        # Filter students based on selected semester and section
+        enrolled_students = [student for student in students if student['semester'] == semester and student['section'] == section]
+    
+    return render_template('view_enrolled.html', semesters=semesters, sections=sections, enrolled_students=enrolled_students)
+
 
 @app.route('/take_attendance', methods=['GET', 'POST'])
 def take_attendance():
@@ -262,8 +283,9 @@ def attendance_statistics():
             records = parse_attendance(file_path)
             if records:
                 statistics = calculate_statistics(records)
+                total_sessions = len(records)  # Count the total sessions
                 output_pdf = os.path.join(folder_name, f"attendance_report_{selected_file.split('.')[0]}.pdf")
-                generate_pdf(statistics, output_pdf)
+                generate_pdf(statistics, output_pdf, total_sessions)  # Pass total_sessions to generate_pdf
 
                 return jsonify({
                     'status': 'success',
@@ -275,8 +297,50 @@ def attendance_statistics():
 
     return render_template('attendance_statistics.html', files=files)
 
+def generate_pdf(stats, output_file, total_sessions):
+    c = canvas.Canvas(output_file, pagesize=letter)
+    width, height = letter
 
+    # Title
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(220, height - 40, "Attendance Statistics")
 
+    # Number of sessions
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, height - 60, f"Total Sessions: {total_sessions}")
+
+    # Column Headers
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, height - 80, "Above 75% Attendance")
+    c.drawString(350, height - 80, "Below 75% Attendance")
+
+    # Draw the lists of students
+    c.setFont("Helvetica", 10)
+
+    above_75 = [(student, percentage) for student, percentage in stats.items() if percentage >= 75]
+    below_75 = [(student, percentage) for student, percentage in stats.items() if percentage < 75]
+
+    y_position_above = height - 100
+    y_position_below = height - 100
+
+    # Printing Above 75% Attendance
+    for student, percentage in above_75:
+        c.drawString(50, y_position_above, f"{student}: {percentage:.2f}%")
+        y_position_above -= 15
+        if y_position_above < 50:
+            c.showPage()
+            c.setFont("Helvetica", 10)
+            y_position_above = height - 50
+
+    # Printing Below 75% Attendance
+    for student, percentage in below_75:
+        c.drawString(350, y_position_below, f"{student}: {percentage:.2f}%")
+        y_position_below -= 15
+        if y_position_below < 50:
+            c.showPage()
+            c.setFont("Helvetica", 10)
+            y_position_below = height - 50
+    c.save()
 # Route to download the PDF
 @app.route('/download/<filename>')
 def download(filename):
@@ -335,13 +399,17 @@ def calculate_statistics(attendance_records):
     return stats
 
 # Function to generate PDF
-def generate_pdf(stats, output_file):
+def generate_pdf(stats, output_file, total_sessions):
     c = canvas.Canvas(output_file, pagesize=letter)
     width, height = letter
 
     # Title
     c.setFont("Helvetica-Bold", 16)
     c.drawString(220, height - 40, "Attendance Statistics")
+
+    # Number of sessions
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, height - 60, f"Total Sessions: {total_sessions}")
 
     # Column Headers
     c.setFont("Helvetica-Bold", 12)
