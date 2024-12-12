@@ -264,6 +264,33 @@ def take_attendance():
     
     return render_template('take_attendance.html')
 
+@app.route('/delete_student', methods=['GET', 'POST'])
+def delete_student():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        usn = request.form['usn']
+        
+        # Load all students from the pickle file
+        students = load_all_students()
+        student_found = False
+        
+        # Remove student by matching USN
+        updated_students = [student for student in students if student['usn'] != usn]
+        
+        if len(updated_students) != len(students):
+            student_found = True
+            # Save the updated list back to the pickle file
+            with open(PICKLE_FILE, 'wb') as f:
+                for student in updated_students:
+                    pickle.dump(student, f)
+        
+        message = "Student deleted successfully." if student_found else "Student with the given USN not found."
+        return render_template('delete_student.html', message=message)
+    
+    return render_template('delete_student.html')
+
 
 @app.route('/attendance_statistics', methods=['GET', 'POST'])
 def attendance_statistics():

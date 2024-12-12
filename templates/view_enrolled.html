@@ -215,10 +215,22 @@
             text-align: center;
             font-weight: bold;
         }
+        header {
+            background: rgba(26, 35, 126, 0.95);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
     </style>
 </head>
 <body>
-    <h2>Enrolled Students</h2>
+   
     <div class="college-info animate__animated animate__fadeIn">
         <img src="/static/amc_logo.jpg" alt="AMC Engineering College" class="college-logo">
         <div>
@@ -227,6 +239,7 @@
         </div>
     </div>
 
+    <h2>Enrolled Students</h2>
     <!-- Form to select semester and section -->
     <div class="form-container">
         <form method="POST">
