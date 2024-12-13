@@ -24,6 +24,7 @@ PICKLE_FILE = os.path.join(STUDENT_DATA_PATH, 'encodings.pkl')
 if not os.path.exists(STUDENT_DATA_PATH):
     os.makedirs(STUDENT_DATA_PATH)
 
+
 # Ensure the pickle file exists
 if not os.path.exists(PICKLE_FILE):
     with open(PICKLE_FILE, 'wb') as f:
@@ -547,5 +548,75 @@ def update_attendance_in_sheet(sheet_id, present_students, absent_students, time
         body={'values': values_absent}
     ).execute()
 
+
+# Path to save the attendance issues
+REPORTS_DIR = 'attendance_issues'  # Ensure this directory exists
+
+# Function to create the attendance issue text file
+@app.route('/report_issue', methods=['POST'])
+def report_issue():
+    data = request.get_json()
+    name = data.get('name')
+    usn = data.get('usn')
+    issue = data.get('issue')
+
+    if name and usn and issue:
+        # Validate USN format (example)
+        if not validate_usn(usn):
+            return jsonify({'success': False, 'message': 'Invalid USN format'})
+
+        # Create a filename based on the current timestamp
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        report_filename = f'{REPORTS_DIR}/attendance_issue_{timestamp}.txt'
+        
+        try:
+            # Write the issue details to the file
+            with open(report_filename, 'w') as file:
+                file.write(f"Name: {name}\n")
+                file.write(f"USN: {usn}\n")
+                file.write(f"Issue: {issue}\n")
+                file.write(f"Reported on: {timestamp}\n")
+
+            # Generate a link for downloading the file
+            download_link = f"/download_report/{timestamp}"
+            return jsonify({'success': True, 'download_link': download_link})
+
+        except Exception as e:
+            return jsonify({'success': False, 'message': f"Error saving report: {str(e)}"})
+
+    return jsonify({'success': False, 'message': 'Invalid data'})
+
+# Function to validate USN format (example)
+def validate_usn(usn):
+    return usn and len(usn) == 10 and usn[:7] == "1AM22CI" and usn[7:].isdigit()
+
+# Route to download the report
+@app.route('/download_report/<timestamp>', methods=['GET'])
+def download_report(timestamp):
+    report_filename = f'{REPORTS_DIR}/attendance_issue_{timestamp}.txt'
+    
+    if os.path.exists(report_filename):
+        return send_file(report_filename, as_attachment=True)
+    return "Report not found", 404
+
+
+
+# Route to get the chatbot's response
+@app.route('/get-response', methods=['GET'])
+def get_response():
+    query = request.args.get('query', '').lower()
+
+    knowledge_base = {
+        "attendance": "Attendance is crucial for academic progress. You need to maintain at least 75% attendance in each subject.",
+        "help": "I can assist you with attendance-related queries. Some common topics include: attendance percentage, reporting issues, general guidelines.",
+        "contact": "For specific attendance issues, please contact the college administration or your class coordinator.",
+        "rules": "AMC follows a strict attendance policy. Less than 75% attendance may lead to academic penalties.",
+        "default": "I'm not sure about that. Could you rephrase your question or ask something more specific about attendance?",
+        "hi": "Hello! How can I assist you?"
+    }
+
+    response = knowledge_base.get(query, knowledge_base["default"])
+    return jsonify({'response': response})
+    
 if __name__ == '__main__':
     app.run(debug=True)

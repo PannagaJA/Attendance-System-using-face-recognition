@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMC Attendance ChatBot</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .chatbot {
+      width: 400px;
+      height: 600px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+    }
+
+    .header {
+      background: linear-gradient(90deg, #0066ff, #003399);
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 1.25rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .messages {
+      flex-grow: 1;
+      padding: 20px;
+      background: #f9f9f9;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .input-container {
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: white;
+    }
+
+    .input-container input {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      margin-right: 10px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .input-container input:focus {
+      border-color: #0066ff;
+    }
+
+    .input-container button {
+      background: #0066ff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .input-container button:hover {
+      background: #0052cc;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .message img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+
+    .user-message {
+      justify-content: flex-end;
+    }
+
+    .user-message .message-content {
+      background: #23d61c;
+      color: black;
+    }
+
+    .bot-message .message-content {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .buttons-container {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      justify-content: center;
+    }
+
+    .buttons-container button {
+      flex-grow: 1;
+      background: #f2f2f2;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .buttons-container button:hover {
+      background: #e0e0e0;
+    }
+
+    /* Dialog styles */
+    .dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .dialog-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .dialog-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .dialog-content button {
+      background: #0066ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot">
+    <div class="header">
+      <img src="https://via.placeholder.com/40" alt="AMC Logo">
+      AMC Attendance ChatBot
+    </div>
+
+    <div class="buttons-container">
+      <button onclick="showReportIssueDialog()">🛠 Report Issue</button>
+      <button onclick="handleOption('generalHelp')">💬 General Help</button>
+      <button onclick="handleOption('attendanceInfo')">📊 Attendance Info</button>
+    </div>
+
+    <div id="messages" class="messages">
+      <div class="message bot-message">
+        <img src="https://via.placeholder.com/40" alt="Bot">
+        <div class="message-content">Hello! I'm the AMC Attendance ChatBot. How can I help you today?</div>
+      </div>
+    </div>
+
+    <div class="input-container">
+      <input id="userInput" type="text" placeholder="Type your message...">
+      <button id="sendButton">Send</button>
+    </div>
+  </div>
+
+  <!-- Report Issue Dialog -->
+  <div id="reportIssueDialog" class="dialog">
+    <div class="dialog-content">
+      <h2>Report Attendance Issue</h2>
+      <input type="text" id="nameInput" placeholder="Enter your name (CAPITAL LETTERS)" required>
+      <input type="text" id="usnInput" placeholder="Enter your USN (e.g., 1AM22CI079)" required>
+      <textarea id="issueDescriptionInput" placeholder="Describe your issue" rows="4" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;"></textarea>
+      <button onclick="submitAttendanceIssue()">Submit Issue</button>
+      <button onclick="closeReportIssueDialog()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let reportsFileContent = "";
+
+    const messagesContainer = document.getElementById("messages");
+    const userInput = document.getElementById("userInput");
+    const sendButton = document.getElementById("sendButton");
+    const reportIssueDialog = document.getElementById("reportIssueDialog");
+    const nameInput = document.getElementById("nameInput");
+    const usnInput = document.getElementById("usnInput");
+
+    // Validate USN format
+    function validateUSN(usn) {
+      const usnRegex = /^1AM22CI\d{3}$/;
+      return usnRegex.test(usn);
+    }
+
+    // Validate Name (All Caps)
+    function validateName(name) {
+      return /^[A-Z\s]+$/.test(name);
+    }
+
+    // Show report issue dialog
+    function showReportIssueDialog() {
+      reportIssueDialog.style.display = 'flex';
+    }
+
+    // Close report issue dialog
+    function closeReportIssueDialog() {
+      reportIssueDialog.style.display = 'none';
+    }
+
+    // Submit attendance issue
+    function submitAttendanceIssue() {
+      const name = nameInput.value.trim().toUpperCase();
+      const usn = usnInput.value.trim();
+      const issueDescription = document.getElementById("issueDescriptionInput").value.trim();
+
+      // Validate inputs
+      if (!validateName(name)) {
+        alert("Name must be in CAPITAL LETTERS only!");
+        return;
+      }
+
+      if (!validateUSN(usn)) {
+        alert("Invalid USN format. It should be like 1AM22CI079!");
+        return;
+      }
+
+      if (name && usn && issueDescription) {
+        // Create report message
+        const currentDateTime = new Date().toLocaleString();
+        const reportMessage = `Report Details:\nName: ${name}\nUSN: ${usn}\nDateTime: ${currentDateTime}\nIssue: ${issueDescription}\n\n`;
+
+        // Save the issue
+        saveAttendanceIssue(reportMessage);
+
+        // Add message to chat
+        addMessage(`Attendance issue reported for ${name} (${usn})`, false);
+
+        // Close dialog
+        closeReportIssueDialog();
+
+        // Clear input fields
+        nameInput.value = '';
+        usnInput.value = '';
+        document.getElementById("issueDescriptionInput").value = '';
+      } else {
+        alert("Please fill in all fields.");
+      }
+    }
+
+    // Save attendance issue (download cumulative txt file)
+    function saveAttendanceIssue(reportMessage) {
+      // Append to cumulative file content
+      reportsFileContent += reportMessage;
+
+      // Create and download the file
+      const blob = new Blob([reportsFileContent], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'attendance_issues.txt';
+      link.click();
+    }
+
+    // Add message to chat
+    function addMessage(content, isUser = false) {
+      const message = document.createElement("div");
+      message.className = `message ${isUser ? "user-message" : "bot-message"}`;
+
+      const img = document.createElement("img");
+      img.src = isUser ? "https://via.placeholder.com/40" : "https://via.placeholder.com/40";
+      img.alt = isUser ? "User" : "Bot";
+
+      const messageContent = document.createElement("div");
+      messageContent.className = "message-content";
+      messageContent.textContent = content;
+
+      message.appendChild(img);
+      message.appendChild(messageContent);
+      messagesContainer.appendChild(message);
+
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Enhanced predefined responses and queries
+    const knowledgeBase = {
+      "attendance": "Attendance is crucial for academic progress. You need to maintain at least 75% attendance in each subject.",
+      "help": "I can assist you with attendance-related queries. Some common topics include: attendance percentage, reporting issues, general guidelines.",
+      "contact": "For specific attendance issues, please contact the college administration or your class coordinator.",
+      "rules": "AMC follows a strict attendance policy. Less than 75% attendance may lead to academic penalties.",
+      "default": "I'm not sure about that. Could you rephrase your question or ask something more specific about attendance?"
+    };
+
+    // Get bot response
+    function getBotResponse(query) {
+      const lowercaseQuery = query.toLowerCase();
+      
+      // Check for specific keywords
+      if (lowercaseQuery.includes("attendance")) return knowledgeBase["attendance"];
+      if (lowercaseQuery.includes("help") || lowercaseQuery.includes("info")) return knowledgeBase["help"];
+      if (lowercaseQuery.includes("contact")) return knowledgeBase["contact"];
+      if (lowercaseQuery.includes("rules") || lowercaseQuery.includes("policy")) return knowledgeBase["rules"];
+      
+      return knowledgeBase["default"];
+    }
+
+    // Handle user input
+    function handleUserInput() {
+      const message = userInput.value.trim();
+      if (message) {
+        // Add user message
+        addMessage(message, true);
+        userInput.value = "";
+        sendButton.disabled = true;
+
+        // Get and add bot response
+        const botResponse = getBotResponse(message);
+        addMessage(botResponse, false);
+
+        sendButton.disabled = false;
+      }
+    }
+
+    // Handle predefined options
+    function handleOption(option) {
+      const predefinedResponses = {
+        generalHelp: "I can help you with attendance-related queries. What specific information do you need?",
+        attendanceInfo: knowledgeBase["attendance"]
+      };
+
+      addMessage(predefinedResponses[option], false);
+    }
+
+    // Event Listeners
+    sendButton.addEventListener("click", handleUserInput);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") handleUserInput();
+    });
+  </script>
+</body>
+</html>
